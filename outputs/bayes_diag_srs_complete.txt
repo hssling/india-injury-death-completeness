@@ -1,0 +1,1 @@
+srs_complete: max R-hat 1.003; min bulk ESS 1151; divergences 0

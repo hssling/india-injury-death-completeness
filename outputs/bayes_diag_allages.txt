@@ -1,0 +1,1 @@
+allages: max R-hat 1.007; min bulk ESS 661; divergences 2

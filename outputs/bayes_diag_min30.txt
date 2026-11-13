@@ -1,0 +1,1 @@
+min30: max R-hat 1.006; min bulk ESS 627; divergences 0

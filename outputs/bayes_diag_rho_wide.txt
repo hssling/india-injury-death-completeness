@@ -1,0 +1,1 @@
+rho_wide: max R-hat 1.008; min bulk ESS 665; divergences 0

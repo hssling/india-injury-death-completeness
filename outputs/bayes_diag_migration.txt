@@ -1,0 +1,1 @@
+migration: max R-hat 1.003; min bulk ESS 637; divergences 0

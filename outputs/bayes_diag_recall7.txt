@@ -1,0 +1,1 @@
+recall7: max R-hat 1.008; min bulk ESS 521; divergences 0

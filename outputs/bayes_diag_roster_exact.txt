@@ -1,0 +1,1 @@
+roster_exact: max R-hat 1.003; min bulk ESS 1445; divergences 0

@@ -1,0 +1,1 @@
+ncrb_2014_16: max R-hat 1.010; min bulk ESS 462; divergences 1

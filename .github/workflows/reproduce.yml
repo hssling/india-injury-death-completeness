@@ -1,0 +1,46 @@
+name: reproduce-and-verify
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Police counts and SRS calibration from the shipped tables
+        run: |
+          python src/02b_ncrb_window.py
+          python src/04_state_calibration.py
+      - name: Figures and reported numbers (from shipped model summaries)
+        run: |
+          python src/11_figures.py
+          python src/12_numbers.py
+      - name: Verify reported numbers (frozen manuscript claims) and self-test
+        run: |
+          python verify.py
+          python verify.py --selftest
+  bayes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt -r requirements-bayes.txt
+      - name: Refit the main model and the sex-ratio model; compare with the shipped summaries
+        run: |
+          cp outputs/bayes_completeness_main.csv /tmp/shipped_C.csv
+          cp outputs/sex_ratio_pooled.csv /tmp/shipped_R.csv
+          VARIANT=main python src/08_bayes_model.py
+          python src/10_sex_ratio.py
+          python - <<'PY'
+          import pandas as pd, numpy as np
+          a = pd.read_csv("/tmp/shipped_C.csv").set_index(["unit", "round"]); b = pd.read_csv("outputs/bayes_completeness_main.csv").set_index(["unit", "round"])
+          d = (np.log(b.C_med) - np.log(a.C_med)).abs(); print("max |log diff| completeness:", round(d.max(), 4)); assert d.max() < 0.05
+          a = pd.read_csv("/tmp/shipped_R.csv").set_index("round"); b = pd.read_csv("outputs/sex_ratio_pooled.csv").set_index("round")
+          d = (np.log(b.R_med) - np.log(a.R_med)).abs(); print("max |log diff| sex ratio:", round(d.max(), 4)); assert d.max() < 0.05
+          PY

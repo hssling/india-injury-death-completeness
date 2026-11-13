@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+outputs_*.log
+data_local/
+data_raw/
+manuscript/
+submission_*/
