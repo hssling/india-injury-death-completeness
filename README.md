@@ -1,7 +1,7 @@
 # Completeness of police-recorded injury deaths in India, by state and sex
 
 Code and derived data for: *How many injury deaths do police record in India? Household death rosters as an independent
-count, by state and sex* (Siddalingaiah H S; submitted). Archive: (Zenodo DOI to be added on release).
+count, by state and sex* (Siddalingaiah H S; submitted). Archive: https://doi.org/10.5281/zenodo.24199145.
 
 ## What this does
 
