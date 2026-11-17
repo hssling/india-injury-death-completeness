@@ -1,7 +1,8 @@
 # Completeness of police-recorded injury deaths in India, by state and sex
 
 Code and derived data for: *How completely do police record injury deaths in India? A Bayesian comparison with household
-death rosters, by state and sex* (Siddalingaiah H S; submitted). Archive: https://doi.org/10.5281/zenodo.24199145.
+death rosters, by state and sex* (Siddalingaiah H S; submitted). Archive (all versions): https://doi.org/10.5281/zenodo.24199145;
+v1.1.0 (JECH submission jech-2026-227856): https://doi.org/10.5281/zenodo.24322112; v1.0.0: https://doi.org/10.5281/zenodo.24199146.
 
 Version 1.1.0 (2026-11-17) adds unrecorded deaths per year (national, state, sex), the bias that changing completeness
 introduces into trends, an external comparison with GBD 2023 and civil registration (`src/14_implications.py`, posterior
