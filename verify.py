@@ -42,7 +42,8 @@ class Text:
         return self._ans("first_lowest", f) or ""
 
     def abstract_words(self):
-        f = lambda: len(re.sub(r"[#*]", " ", self.ms.split("## Abstract")[1].split("## Introduction")[0]).split()) - 4
+        end = "## Key messages" if self.ms is not None and "## Key messages" in self.ms else "## Introduction"
+        f = lambda: len(re.sub(r"[#*]", " ", self.ms.split("## Abstract")[1].split(end)[0]).split()) - 4
         v = self._ans("abstract_words", f)
         return 9999 if v is None else v
 
@@ -107,7 +108,7 @@ def run(T):
     lo, hi = nat["roster_exact"].loc["nfhs5", "C_med"], nat["srs_complete"].loc["nfhs5", "C_med"]
     chk("bracket ordered roster_exact < main < srs_complete", lo < m5.C_med < hi)
     chk("'one fifth and two fifths' = 1 - bracket", abs((1 - hi) - 0.2) < 0.05 and abs((1 - lo) - 0.4) < 0.05
-        and T.has("one fifth and two fifths"), f"{1 - hi:.2f}-{1 - lo:.2f}")
+        and T.has("one fifth to two fifths"), f"{1 - hi:.2f}-{1 - lo:.2f}")
     chk("'three in four' ~ main C", 0.68 <= m5.C_med <= 0.80 and T.has("three in four"))
     sp = pd.read_csv(O / "sex_ratio_pooled.csv").set_index("round").loc["nfhs5"]
     chk("sex ratio CrI excludes 1 ('less completely recorded')", sp.R_hi < 1 and T.has("less completely recorded"))
@@ -139,11 +140,42 @@ def run(T):
     chk("all model variants converged (R-hat <= 1.01)", rh <= 1.0105 and intext(N["max_rhat"]), f"{rh:.3f}")
 
     # 17-20 survey-side claims and text hygiene
-    chk("female survey injury rate fell between rounds", float(N["inj_rate_f_nfhs5"]) < float(N["inj_rate_f_nfhs4"]) and T.has("also fell between rounds"))
+    chk("female survey injury rate fell between rounds", float(N["inj_rate_f_nfhs5"]) < float(N["inj_rate_f_nfhs4"]) and T.has("survey injury rate among women also fell"))
     r7, r0 = float(N["inj_rate_recall7_nfhs5"]), float(N["inj_rate_nfhs5"])
     chk("'left the injury rate unchanged' (recall check, <2%)", abs(r7 / r0 - 1) < 0.02 and T.has("left the injury rate unchanged"))
     chk("no unfilled placeholder or citation marker", T.clean())
     chk("abstract <= 250 words", T.abstract_words() <= 250)
+
+    # 21-30 JECH additions (2026-11-17): unrecorded deaths, sex split, trends, external comparison; recomputed from draws
+    z = np.load(O / "bayes_draws_main.npz", allow_pickle=False)
+    m5, m4 = z["round"] == "nfhs5", z["round"] == "nfhs4"
+    lam = np.exp(z["log_lam"].astype(float)); py = z["person_years"]; nc = z["ncrb"]
+    tot5 = (lam[:, m5] * py[m5] / 1e5).sum(1) / 3; pol5 = nc[m5].sum() / 3
+    un = np.median(tot5 - pol5)
+    chk("unrecorded deaths/year recomputed from draws", f"{1000 * round(un / 1000):,}" == N["unrec_per_year"].split(" ")[0]
+        and intext(N["unrec_per_year"]), f"{un:,.0f}")
+    chk("police deaths/year = NCRB 2017-19 modelled states / 3", f"{1000 * round(pol5 / 1000):,}" == N["police_per_year"] and intext(N["police_per_year"]))
+    o4 = {u: i for i, u in enumerate(z["unit"][m4])}; ix = np.array([o4[u] for u in z["unit"][m5]])
+    l4 = lam[:, m4][:, ix]; p4 = py[m4][ix]; n4 = nc[m4][ix]
+    trr = ((lam[:, m5] * py[m5]).sum(1) / py[m5].sum()) / ((l4 * p4).sum(1) / p4.sum())
+    prr = (nc[m5].sum() / py[m5].sum()) / (n4.sum() / p4.sum())
+    chk("police vs true change recomputed", f"{100 * (1 - prr):.0f}" == N["police_change_pct"]
+        and f"{100 * (1 - np.median(trr)):.0f}" == N["true_change_med_pct"] and intext(N["true_change_pct"]))
+    masked = (prr - np.median(trr)) / (1 - np.median(trr))
+    chk("'about three quarters of a real decline' ~ masked share", 0.65 <= masked <= 0.85 and T.has("about three quarters of a real decline")
+        and np.percentile(trr, 97.5) < 1, f"{masked:.2f}")
+    cr = prr / np.median(trr)
+    chk("completeness rise exceeds the 10% NSPS target ('more than the 10% reduction')", cr - 1 > 0.10 and T.has("more than the 10% reduction"), f"{cr:.3f}")
+    chk("decline ratio in text", f"{(1 - np.median(trr)) / (1 - prr):.1f}" == N["decline_ratio"] and T.has(f"{N['decline_ratio']} times as large"))
+    tb = pd.read_csv(O / "trend_by_state.csv").set_index("unit").loc["BIHAR"]
+    chk("Bihar: police rose, true fell (P>0.9)", tb.police_ratio > 1 and tb.P_true_decline > 0.9 and T.has("Bihar police counts rose while true injury mortality fell"))
+    I = json.loads((O / "implications.json").read_text(encoding="utf-8"))
+    chk("GBD: true rates agree more closely than police rates", I["rho_true_gbd"] > I["rho_police_gbd"] and T.has("agreed more closely with GBD estimates than police rates did"))
+    chk("GBD-implied national completeness inside the bracket ('inside our range')", lo <= I["C_gbd_india"] <= hi and T.has("inside our range"), f"{I['C_gbd_india']:.2f}")
+    chk("women's completeness below men's; women over-represented among unrecorded", I["C_women"][0] < I["C_men"][0]
+        and I["female_share_unrecorded"][0] > I["female_share_true"][0] > I["female_share_police"])
+    sx_code = (P / "src/10_sex_ratio.py").read_text(encoding="utf-8")
+    chk("sex-ratio model has state-by-round term (Methods)", "tau_x" in sx_code and T.has("a state effect and a state-by-round deviation"))
     return res
 
 

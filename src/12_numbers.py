@@ -142,5 +142,48 @@ for nm, (by, lv) in {"rural": ("residence", "1"), "urban": ("residence", "0"), "
     h = hv(by, lv); N[f"pr_{nm}_ci"] = ci(h.PR, h.lo, h.hi)
 N["pr_5_14"] = f2(hv("age", "5-14").PR); N["pr_15_29"] = f2(hv("age", "15-29").PR)
 
+# ---- implications (14_implications.py): unrecorded deaths, sex split, trend bias, external comparison
+I = json.loads((O / "implications.json").read_text(encoding="utf-8"))
+k0 = lambda x: f"{1000 * round(x / 1000):,}"                    # round to the nearest thousand
+kci = lambda v: f"{k0(v[0])} ({k0(v[1])}–{k0(v[2])})"
+N["police_per_year"] = k0(I["police_per_year"]); N["true_per_year"] = kci(I["true_per_year"])
+N["unrec_per_year"] = kci(I["unrecorded_per_year"]); N["unrec_med_k"] = f"{round(I['unrecorded_per_year'][0] / 1000):.0f}"
+N["unrec_roster_exact"] = k0(I["unrecorded_per_year_roster_exact"]); N["unrec_srs_complete"] = k0(I["unrecorded_per_year_srs_complete"])
+N["unrec_lo_k"] = f"{round(I['unrecorded_per_year_srs_complete'] / 1000):.0f}"; N["unrec_hi_k"] = f"{round(I['unrecorded_per_year_roster_exact'] / 1000):.0f}"
+N["n_states_net_unrec"] = str(I["n_states_net_unrecorded"])
+N["top5_unrec"] = "; ".join(f"{nice(u)} {k0(m)} ({k0(lo)}–{k0(hi)})" for u, m, lo, hi in I["top5_states_unrecorded"])
+N["top5_unrec_share_pct"] = f"{100 * I['top5_share_of_net_unrecorded']:.0f}"; N["up_unrec_share_pct"] = f"{100 * I['up_share_of_net_unrecorded']:.0f}"
+N["up_unrec"] = k0(I["top5_states_unrecorded"][0][1]) if I["top5_states_unrecorded"][0][0] == "UTTAR PRADESH" else "NA"
+N["C_men"] = ci(*I["C_men"]); N["C_women"] = ci(*I["C_women"])
+N["unrec_women"] = kci(I["unrecorded_women_per_year"]); N["unrec_men"] = kci(I["unrecorded_men_per_year"])
+N["female_share_police_pct"] = f"{100 * I['female_share_police']:.0f}"
+N["female_share_true_pct"] = f"{100 * I['female_share_true'][0]:.0f}"
+N["female_share_unrec_pct"] = f"{100 * I['female_share_unrecorded'][0]:.0f}"
+N["R_national_raw"] = ci(*I["R_national_raw"])
+N["tip_rho_null"] = f"{I['tip_rho_ratio_null']:.2f}"; N["tip_rho_ci"] = f"{I['tip_rho_ratio_ci']:.2f}"
+N["tip_rho_null_pct"] = f"{100 * (I['tip_rho_ratio_null'] - 1):.0f}"; N["tip_rho_ci_pct"] = f"{100 * (I['tip_rho_ratio_ci'] - 1):.0f}"
+N["police_change_pct"] = f"{100 * (1 - I['police_rate_ratio']):.0f}"
+tr = I["true_rate_ratio"]
+N["true_change_pct"] = f"{100 * (1 - tr[0]):.0f}% ({100 * (1 - tr[2]):.0f}–{100 * (1 - tr[1]):.0f}%)"
+N["true_change_med_pct"] = f"{100 * (1 - tr[0]):.0f}"
+N["completeness_change"] = ci(*I["completeness_ratio"])
+N["masked_pct"] = f"{100 * I['masked_share_of_decline']:.0f}"
+N["completeness_pct"] = f"{100 * (I['completeness_ratio'][0] - 1):.0f}"
+N["decline_ratio"] = f"{(1 - tr[0]) / (1 - I['police_rate_ratio']):.1f}"
+N["data_statement"] = ("Code, derived state-level data, model outputs and the online supplement are openly available at Zenodo "
+                       "(https://doi.org/10.5281/zenodo.24199145) and at https://github.com/hssling/india-injury-death-completeness. "
+                       "NFHS unit-level data are available on request from the Demographic and Health Surveys Program (https://dhsprogram.com) "
+                       "and PLFS unit-level data from the Ministry of Statistics and Programme Implementation (https://microdata.gov.in); "
+                       "neither may be redistributed.")
+vv = [v for k, v in I["true_rate_ratio_variants"].items()]
+N["true_change_var_lo"] = f"{100 * (1 - max(vv)):.0f}"; N["true_change_var_hi"] = f"{100 * (1 - min(vv)):.0f}"
+N["n_states_trend"] = str(I["n_states_trend"]); N["n_opposite"] = str(I["n_opposite"])
+N["n_police_rise"] = str(I["n_police_rise"]); N["n_true_decline_090"] = str(I["n_true_decline_090"])
+sg = lambda x: f"{'+' if x >= 1 else '−'}{abs(100 * (x - 1)):.0f}%"
+N["opposite_states"] = "; ".join(f"{nice(u)} (police {sg(p)}, true {sg(t)})" for u, p, t in sorted(I["opposite_states"], key=lambda r: r[1] - r[2]))
+N["n_gbd"] = str(I["n_gbd"]); N["rho_true_gbd"] = f"{I['rho_true_gbd']:.2f}"; N["rho_police_gbd"] = f"{I['rho_police_gbd']:.2f}"
+N["C_gbd_india"] = f2(I["C_gbd_india"]); N["rho_lor"] = f"{I['rho_lor']:.2f}"; N["n_lor"] = str(I["n_lor"])
+N["p_lor"] = "<0.001" if I["p_lor"] < 0.001 else f"{I['p_lor']:.3f}"; N["p_true_gbd"] = "<0.001" if I["p_true_gbd"] < 0.001 else f"{I['p_true_gbd']:.3f}"
+
 json.dump(N, open(O / "numbers.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(f"{len(N)} numbers written"); [print(f"  {k}: {v}") for k, v in N.items()]

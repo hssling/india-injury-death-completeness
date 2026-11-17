@@ -106,6 +106,11 @@ diag = f"{VARIANT}: max R-hat {rhat:.3f}; min bulk ESS {ess:.0f}; divergences {d
 print(diag); (O / f"bayes_diag_{VARIANT}.txt").write_text(diag + "\n")
 
 C = np.exp(flat["log_C"])
+# posterior draws for downstream quantities (14_implications.py: unrecorded deaths, trend bias)
+np.savez_compressed(O / f"bayes_draws_{VARIANT}.npz", log_C=flat["log_C"].astype("float32"),
+                    log_lam=flat["log_lam"].astype("float32"), unit=d.unit.values.astype(str), round=d["round"].values.astype(str),
+                    ncrb=d.ncrb.values, person_years=d.person_years.values,
+                    **({"log_C_rec": flat["log_C_rec"].astype("float32")} if "log_C_rec" in flat else {}))
 q = lambda x, p: np.percentile(x, p, axis=0)
 out = d[["unit", "round", "deaths_inj", "ncrb", "inj_rate", "cdr", "srs_cdr"]].copy()
 out["C_med"], out["C_lo"], out["C_hi"] = q(C, 50), q(C, 2.5), q(C, 97.5)

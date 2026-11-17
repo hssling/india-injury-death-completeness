@@ -8,7 +8,7 @@ authors:
     affiliation: "Department of Community Medicine, Shridevi Institute of Medical Sciences and Research Hospital, Tumakuru, India"
 repository-code: "https://github.com/hssling/india-injury-death-completeness"
 license: MIT
-version: "1.0.0"
-date-released: "2026-11-13"
+version: "1.1.0"
+date-released: "2026-11-17"
 keywords: [injury, mortality surveillance, data quality, death registration, India, Bayesian measurement model, NFHS]
 doi: "10.5281/zenodo.24199145"

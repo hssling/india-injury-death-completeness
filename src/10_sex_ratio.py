@@ -97,10 +97,14 @@ ri = (d["round"] == "nfhs5").astype(int).values
 
 
 def model(y, se):
+    # state effect w_s shared across rounds plus a state-by-round deviation x_sr (as in the completeness model), so that
+    # each round's state ratios are estimated from that round's data rather than shifted copies of the other round
     th = numpyro.sample("theta", dist.Normal(0, 1).expand([2]))
     tau = numpyro.sample("tau", dist.HalfNormal(0.5))
+    tau_x = numpyro.sample("tau_x", dist.HalfNormal(0.25))
     w = tau * numpyro.sample("zw", dist.Normal(0, 1).expand([len(units)]))
-    mu = numpyro.deterministic("mu", th[ri] + w[si])
+    x = tau_x * numpyro.sample("zx", dist.Normal(0, 1).expand([len(y)]))
+    mu = numpyro.deterministic("mu", th[ri] + w[si] + x)
     numpyro.sample("obs", dist.Normal(mu, se), obs=y)
 
 

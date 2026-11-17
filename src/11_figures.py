@@ -133,7 +133,7 @@ a.set_yticks(yv); a.set_yticklabels([l for _, l in V], fontsize=6.8)
 a.set_xlabel("National completeness (posterior median, 95% CrI)")
 a.xaxis.grid(True, color=GRID, lw=0.5); a.set_axisbelow(True); a.set_xlim(0.3, 1.3)
 a.legend(frameon=False, fontsize=7, loc="lower right")
-a.text(-0.02, 1.02, "a", transform=a.transAxes, fontweight="bold", fontsize=9)
+a.text(-0.02, 1.02, "A", transform=a.transAxes, fontweight="bold", fontsize=9)
 R = pd.read_csv(O / "registration_premium_age1plus.csv")
 H = pd.read_csv(O / "registration_premium_by_group_age1plus.csv")
 rows = [("All deaths (adjusted)", R.iloc[-1].PR, R.iloc[-1].lo, R.iloc[-1].hi)]
@@ -149,5 +149,34 @@ for i, (lab, pr, lo, hi) in enumerate(rows):
 b.set_yticks(yb); b.set_yticklabels([r[0] for r in rows], fontsize=6.8)
 b.set_xlabel("Registration, injury vs other deaths\n(prevalence ratio, 95% CI)")
 b.xaxis.grid(True, color=GRID, lw=0.5); b.set_axisbelow(True)
-b.text(-0.02, 1.02, "b", transform=b.transAxes, fontweight="bold", fontsize=9)
+b.text(-0.02, 1.02, "B", transform=b.transAxes, fontweight="bold", fontsize=9)
 save(fig, "fig4_sensitivity_registration")
+
+# ---------------- Fig 5 trend bias: police change vs completeness-corrected change, 2013-16 round -> 2017-19 round
+# (14_implications.py). Points on the diagonal: police trend = true trend; above it: police overstate the change.
+tb = pd.read_csv(O / "trend_by_state.csv")
+imp = __import__("json").loads((O / "implications.json").read_text(encoding="utf-8"))
+fig, ax = plt.subplots(figsize=(5.2, 4.8))
+xl, yl = (0.7, 1.5), (0.4, 2.0)
+ax.plot((0.4, 2), (0.4, 2), color=MUTED, lw=0.8, zorder=0)
+ax.axhline(1, color=GRID, lw=0.8, zorder=0); ax.axvline(1, color=GRID, lw=0.8, zorder=0)
+col = np.where(tb.opposite, CAT[1], CAT[0])
+ax.vlines(tb.police_ratio, tb.true_lo, tb.true_hi, color=col, lw=1.0, alpha=0.55)
+ax.scatter(tb.police_ratio, tb.true_ratio_med, s=18, c=col, edgecolor="white", linewidth=0.5, zorder=3)
+for r in tb.itertuples():
+    if r.opposite or abs(np.log(r.police_ratio / r.true_ratio_med)) > 0.45:
+        ax.annotate(nice(r.unit), (r.police_ratio, r.true_ratio_med), xytext=(3, 2), textcoords="offset points", fontsize=6, color=INK2)
+pr, tr = imp["police_rate_ratio"], imp["true_rate_ratio"]
+ax.vlines(pr, tr[1], tr[2], color=INK, lw=2); ax.plot(pr, tr[0], "D", color=INK, ms=6.5, mec="white", mew=0.6, zorder=4)
+ax.annotate("India", (pr, tr[0]), xytext=(6, -10), textcoords="offset points", fontsize=7, fontweight="bold", color=INK)
+ax.set_xscale("log"); ax.set_yscale("log")
+for a_ in (ax.xaxis, ax.yaxis):
+    a_.set_major_locator(matplotlib.ticker.FixedLocator([0.5, 0.7, 0.85, 1, 1.2, 1.4, 2]))
+    a_.set_major_formatter(matplotlib.ticker.FixedFormatter(["0.5", "0.7", "0.85", "1", "1.2", "1.4", "2"]))
+    a_.set_minor_formatter(matplotlib.ticker.NullFormatter())
+ax.set_xlim(*xl); ax.set_ylim(*yl)
+ax.set_xlabel("Change in police-recorded injury death rate\n(2017–19 ÷ 2016; log scale)")
+ax.set_ylabel("Change in true resident injury death rate\n(model; 2017–19 ÷ 2013–16 round; log scale)")
+ax.text(0.71, 1.85, "Above the diagonal: police\nunderstate a rise", fontsize=6.5, color=MUTED, va="top")
+ax.text(1.49, 0.42, "Below: police understate\na fall (or show a false rise)", fontsize=6.5, color=MUTED, ha="right")
+save(fig, "fig5_trend_bias")

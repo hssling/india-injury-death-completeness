@@ -14,8 +14,9 @@ jobs:
         run: |
           python src/02b_ncrb_window.py
           python src/04_state_calibration.py
-      - name: Figures and reported numbers (from shipped model summaries)
+      - name: Figures and reported numbers (from shipped model summaries and posterior draws)
         run: |
+          python src/14_implications.py
           python src/11_figures.py
           python src/12_numbers.py
       - name: Verify reported numbers (frozen manuscript claims) and self-test
