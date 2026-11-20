@@ -1,7 +1,7 @@
 # Completeness of police-recorded injury deaths in India, by state and sex
 
 Code and derived data for a manuscript on the completeness of police-recorded injury deaths in India (Siddalingaiah H S;
-under review). Archive (all versions): https://doi.org/10.5281/zenodo.24199145; v1.1.0: https://doi.org/10.5281/zenodo.24322112; v1.0.0:
+under review). Archive (all versions): https://doi.org/10.5281/zenodo.24199145; v1.2.0: https://doi.org/10.5281/zenodo.24391356; v1.1.0: https://doi.org/10.5281/zenodo.24322112; v1.0.0:
 https://doi.org/10.5281/zenodo.24199146.
 
 Version 1.2.0 (2026-11-20) adds the decision consequences of incomplete recording (`src/15_policy_decisions.py`, from the
