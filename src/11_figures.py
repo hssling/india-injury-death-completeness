@@ -116,12 +116,13 @@ ax.set_xlabel("Completeness for women relative to men\n(log scale; below 1 = wom
 save(fig, "fig3_sex_ratio")
 
 # ---------------- Fig 4 sensitivity + registration
-V = [("main", "Main model"), ("srs_complete", "SRS complete (all survey–SRS gap = roster)"),
-     ("roster_exact", "Roster exact (raw survey rates)"), ("rho_wide", "Injury-specific reporting prior SD 0.25"),
+V = [("main", "Main model"), ("srs_complete", "SRS complete (survey–SRS gap = household over-reporting)"),
+     ("roster_exact", "Survey exact (raw survey rates)"), ("rho_wide", "Injury-specific reporting prior SD 0.25"),
      ("recall7", "Drop deaths in last 6 months (recall)"), ("allages", "Injury deaths at all ages"),
      ("min30", "States with ≥30 survey injury deaths"), ("ncrb_strict", "NCRB excl. 'causes not known'"),
      ("ncrb_2014_16", "2013–16 round vs NCRB 2014–16"), ("migration", "With in-migration covariate")]
-fig, (a, b) = plt.subplots(1, 2, figsize=(7.4, 3.9), gridspec_kw={"width_ratios": [1.25, 1], "wspace": 0.9})
+fig, (b, a) = plt.subplots(1, 2, figsize=(8.6, 3.9), gridspec_kw={"width_ratios": [1, 1.25], "wspace": 1.45})
+# panel A (left) = registration, panel B (right) = sensitivity: the text cites the registration panel first (JECH)
 yv = np.arange(len(V))[::-1]
 for j, (r, col, mk, lab) in enumerate([("nfhs5", CAT[0], "o", "2017–19"), ("nfhs4", CAT[2], "s", "2013–16")]):
     for i, (v, _) in enumerate(V):
@@ -130,10 +131,10 @@ for j, (r, col, mk, lab) in enumerate([("nfhs5", CAT[0], "o", "2017–19"), ("nf
         a.hlines(yv[i] + off, n.C_lo, n.C_hi, color=col, lw=1.6)
         a.plot(n.C_med, yv[i] + off, mk, color=col, ms=4.5, mec="white", mew=0.6, label=lab if i == 0 else None)
 a.set_yticks(yv); a.set_yticklabels([l for _, l in V], fontsize=6.8)
-a.set_xlabel("National completeness (posterior median, 95% CrI)")
+a.set_xlabel("National completeness\n(posterior median, 95% CrI)")
 a.xaxis.grid(True, color=GRID, lw=0.5); a.set_axisbelow(True); a.set_xlim(0.3, 1.3)
 a.legend(frameon=False, fontsize=7, loc="lower right")
-a.text(-0.02, 1.02, "A", transform=a.transAxes, fontweight="bold", fontsize=9)
+a.text(-0.02, 1.02, "B", transform=a.transAxes, fontweight="bold", fontsize=9)
 R = pd.read_csv(O / "registration_premium_age1plus.csv")
 H = pd.read_csv(O / "registration_premium_by_group_age1plus.csv")
 rows = [("All deaths (adjusted)", R.iloc[-1].PR, R.iloc[-1].lo, R.iloc[-1].hi)]
@@ -149,7 +150,7 @@ for i, (lab, pr, lo, hi) in enumerate(rows):
 b.set_yticks(yb); b.set_yticklabels([r[0] for r in rows], fontsize=6.8)
 b.set_xlabel("Registration, injury vs other deaths\n(prevalence ratio, 95% CI)")
 b.xaxis.grid(True, color=GRID, lw=0.5); b.set_axisbelow(True)
-b.text(-0.02, 1.02, "B", transform=b.transAxes, fontweight="bold", fontsize=9)
+b.text(-0.02, 1.02, "A", transform=b.transAxes, fontweight="bold", fontsize=9)
 save(fig, "fig4_sensitivity_registration")
 
 # ---------------- Fig 5 trend bias: police change vs completeness-corrected change, 2013-16 round -> 2017-19 round

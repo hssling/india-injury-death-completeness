@@ -17,6 +17,7 @@ jobs:
       - name: Figures and reported numbers (from shipped model summaries and posterior draws)
         run: |
           python src/14_implications.py
+          python src/15_policy_decisions.py
           python src/11_figures.py
           python src/12_numbers.py
       - name: Verify reported numbers (frozen manuscript claims) and self-test

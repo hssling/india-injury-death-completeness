@@ -43,7 +43,8 @@ class Text:
 
     def abstract_words(self):
         end = "## Key messages" if self.ms is not None and "## Key messages" in self.ms else "## Introduction"
-        f = lambda: len(re.sub(r"[#*]", " ", self.ms.split("## Abstract")[1].split(end)[0]).split()) - 4
+        f = lambda: len(re.sub(r"[#*]", " ", re.sub(r"\*\*(Objectives?|Study design|Background|Methods|Findings|Results|Conclusions?)\*\*",
+                                                     "", self.ms.split("## Abstract")[1].split(end)[0])).split())
         v = self._ans("abstract_words", f)
         return 9999 if v is None else v
 
@@ -176,6 +177,29 @@ def run(T):
         and I["female_share_unrecorded"][0] > I["female_share_true"][0] > I["female_share_police"])
     sx_code = (P / "src/10_sex_ratio.py").read_text(encoding="utf-8")
     chk("sex-ratio model has state-by-round term (Methods)", "tau_x" in sx_code and T.has("a state effect and a state-by-round deviation"))
+    # 31-36 Public Health additions (2026-11-20): decision consequences, recomputed from the draws without 15_policy_decisions.py
+    if (O / "policy.json").exists():
+        C5 = np.exp(z["log_C"][:, m5].astype(float)); C4 = np.exp(z["log_C"][:, m4].astype(float))[:, ix]
+        popw = py[m5] / py[m5].sum()
+        adeq = ((C5 >= 0.8).mean(0) >= 0.8) & ~((C5 > 1).mean(0) >= 0.8)
+        unfit = (C5 < 0.5).mean(0) >= 0.8
+        chk("tiers recomputed: adequate / unfit counts in text", str(int(adeq.sum())) == N["n_adequate"] and str(int(unfit.sum())) == N["n_unfit"]
+            and T.has(f"adequate as recorded in {N['n_adequate']} of {N['n_units_policy']}"), f"{adeq.sum()} / {unfit.sum()}")
+        chk("'only about a quarter of India's population' ~ adequate population share", 0.18 <= popw[adeq].sum() <= 0.32
+            and T.has("only about a quarter of India's population"), f"{popw[adeq].sum():.2f}")
+        t5 = lam[:, m5] * py[m5]; ts = t5 / t5.sum(1, keepdims=True); ps = nc[m5] / nc[m5].sum()
+        Dm = np.median(0.5 * np.abs(ps - ts).sum(1))
+        chk("misdirected share recomputed; 'one rupee in five'", f"{100 * Dm:.0f}" == N["dissim_med_pct"] and 0.15 <= Dm <= 0.25
+            and intext(N["dissim_pct"]) and T.has("about one rupee in five"), f"{Dm:.3f}")
+        tm = (trr <= 0.9).mean()
+        chk("national target verdict: police says not met, model says met", prr > 0.9 and f"{tm:.2f}" == N["nat_P_true_met"]
+            and T.has("India did not achieve a 10% reduction"), f"police {prr:.3f}; P(true met) {tm:.3f}")
+        sp_ = (nc[m5] / py[m5]) / (n4 / p4) <= 0.9; st_ = (lam[:, m5] / l4) <= 0.9
+        mj = ((st_ != sp_).mean(0) > 0.9)
+        chk("states misjudged with P > 0.9 recomputed", str(int(mj.sum())) == N["n_misjudged_p090"] and str(int((mj & ~sp_).sum())) == N["n_missed_p090"], f"{mj.sum()}")
+        ccm = np.median(C5 / C4, 0)
+        chk("completeness change > 10% count recomputed", str(int((np.abs(ccm - 1) > 0.1).sum())) == N["n_cc_gt_10pct"]
+            and T.has(f"Completeness changed by more than 10% in {N['n_cc_gt_10pct']}"))
     return res
 
 

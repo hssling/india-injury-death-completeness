@@ -14,6 +14,7 @@ for v in main srs_complete roster_exact rho_wide recall7 allages min30 ncrb_stri
 done
 run src/10_sex_ratio.py
 run src/14_implications.py
+run src/15_policy_decisions.py
 run src/11_figures.py
 run src/12_numbers.py
 run verify.py

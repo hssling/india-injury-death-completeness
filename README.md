@@ -1,10 +1,15 @@
 # Completeness of police-recorded injury deaths in India, by state and sex
 
-Code and derived data for: *How completely do police record injury deaths in India? A Bayesian comparison with household
-death rosters, by state and sex* (Siddalingaiah H S; submitted). Archive (all versions): https://doi.org/10.5281/zenodo.24199145;
-v1.1.0 (JECH submission jech-2026-227856): https://doi.org/10.5281/zenodo.24322112; v1.0.0: https://doi.org/10.5281/zenodo.24199146.
+Code and derived data for a manuscript on the completeness of police-recorded injury deaths in India (Siddalingaiah H S;
+under review). Archive (all versions): https://doi.org/10.5281/zenodo.24199145; v1.1.0: https://doi.org/10.5281/zenodo.24322112; v1.0.0:
+https://doi.org/10.5281/zenodo.24199146.
 
-Version 1.1.0 (2026-11-17) adds unrecorded deaths per year (national, state, sex), the bias that changing completeness
+Version 1.2.0 (2026-11-20) adds the decision consequences of incomplete recording (`src/15_policy_decisions.py`, from the
+posterior draws): a fitness-for-use category and correction multiplier for each state, the share of a budget that police-based
+allocation would send to the wrong states (dissimilarity index), and how often police counts misjudge a 10% reduction
+target, nationally and by state (`outputs/policy.json`, `outputs/policy_by_state.csv`). Earlier estimates are unchanged.
+
+Version 1.1.0 (2026-11-17) added unrecorded deaths per year (national, state, sex), the bias that changing completeness
 introduces into trends, an external comparison with GBD 2023 and civil registration (`src/14_implications.py`, posterior
 draws in `outputs/bayes_draws_*.npz`), and a state-by-round term in the sex-ratio model. Earlier estimates are unchanged.
 
@@ -21,7 +26,7 @@ civil-registration premium of injury deaths.
 
 ```bash
 pip install -r requirements.txt -r requirements-bayes.txt
-bash run_all.sh      # police counts, calibration, 10 model variants, sex ratio, figures, numbers, verify.py
+bash run_all.sh      # police counts, calibration, 10 model variants, sex ratio, implications, policy, figures, numbers, verify.py
 ```
 
 `verify.py` recomputes the key quantities from `data/` and `outputs/`, checks every worded claim against its number, and

@@ -185,5 +185,40 @@ N["n_gbd"] = str(I["n_gbd"]); N["rho_true_gbd"] = f"{I['rho_true_gbd']:.2f}"; N[
 N["C_gbd_india"] = f2(I["C_gbd_india"]); N["rho_lor"] = f"{I['rho_lor']:.2f}"; N["n_lor"] = str(I["n_lor"])
 N["p_lor"] = "<0.001" if I["p_lor"] < 0.001 else f"{I['p_lor']:.3f}"; N["p_true_gbd"] = "<0.001" if I["p_true_gbd"] < 0.001 else f"{I['p_true_gbd']:.3f}"
 
+# ---- decision consequences (15_policy_decisions.py; Public Health version 2026-11-20)
+PJ = json.loads((O / "policy.json").read_text(encoding="utf-8"))
+pc = lambda x: f"{100 * x:.0f}"
+lst = lambda us: ", ".join(nice(u) for u in us[:-1]) + (" and " if len(us) > 1 else "") + nice(us[-1]) if us else "none"
+for t, key in (("unfit", "unfit"), ("correct before use", "correct"), ("adequate", "adequate"), ("over-recording", "over")):
+    N[f"n_{key}"] = str(PJ["tiers"][t]["n"]); N[f"pop_{key}_pct"] = pc(PJ["tiers"][t]["pop_share"])
+    N[f"{key}_states"] = lst(PJ["tiers"][t]["states"])
+N["n_units_policy"] = str(PJ["n_units"]); N["n_trend_unstable"] = str(PJ["n_trend_unstable"])
+N["pop_not_usable_pct"] = pc(PJ["pop_share_not_usable"])
+d = PJ["dissimilarity"]; N["dissim_pct"] = f"{pc(d[0])}% ({pc(d[1])}–{pc(d[2])}%)"; N["dissim_med_pct"] = pc(d[0])
+dv = [PJ[f"dissimilarity_{v}"] for v in ("roster_exact", "srs_complete", "migration")] + [d[0]]
+N["dissim_var_lo"] = pc(min(dv)); N["dissim_var_hi"] = pc(max(dv))
+N["n_under_alloc"] = str(PJ["n_under_allocated_090"]); N["pop_under_alloc_pct"] = pc(PJ["pop_share_under_allocated"])
+N["up_alloc_pct"] = pc(PJ["share_ratio_up"])
+N["n_police_met"] = str(PJ["n_police_met"]); m = PJ["n_true_met"]; N["n_true_met"] = f"{m[0]:.0f} ({m[1]:.0f}–{m[2]:.0f})"
+m = PJ["n_misjudged"]; N["n_misjudged"] = f"{m[0]:.0f} ({m[1]:.0f}–{m[2]:.0f})"
+N["n_misjudged_p090"] = str(PJ["n_misjudged_p090"]); N["n_missed_p090"] = str(PJ["n_missed_p090"]); N["n_false_p090"] = str(PJ["n_false_p090"])
+N["missed_p090_states"] = lst(PJ["missed_p090_states"]); N["false_p090_states"] = lst(PJ["false_p090_states"])
+N["nat_P_true_met"] = f2(PJ["national_P_true_met"]); N["n_cc_gt_10pct"] = str(PJ["n_cc_gt_10pct"])
+N["n_cc_gt_10pct_P090"] = str(PJ["n_cc_gt_10pct_P090"])
+TL = {"unfit": "Unfit", "correct before use": "Correct", "adequate": "Adequate", "over-recording": "Over"}
+PS = pd.read_csv(O / "policy_by_state.csv")
+PS["_o"] = PS.tier.map({"unfit": 0, "correct before use": 1, "adequate": 2, "over-recording": 3})
+rows = ["| State | Completeness (95% CrI) | Use of police counts | Multiplier | Completeness change between rounds (95% CrI) | Police-based share ÷ true share | Police rate ratio | P(true decline ≥10%) |",
+        "|---|---|---|---|---|---|---|---|"]
+for r in PS.sort_values(["_o", "C_med"]).itertuples():
+    rows.append(f"| {nice(r.unit)}{'*' if r.deaths_inj < 30 else ''} | {ci(r.C_med, r.C_lo, r.C_hi)} | {TL[r.tier]} | {r.mult_med:.2f} | "
+                f"{ci(r.cc_med, r.cc_lo, r.cc_hi)}{'†' if r.trend_unstable else ''} | {r.share_ratio_med:.2f} | {r.police_ratio:.2f} | {r.P_true_met:.2f} |")
+N["policy_table"] = "\n".join(rows)
+N["data_statement_anon"] = ("Code, derived state-level data, model outputs and the supplementary material are openly available in a public "
+                            "repository with a DOI (link withheld for anonymised review; given on the title page). "
+                            "NFHS unit-level data are available on request from the Demographic and Health Surveys Program (https://dhsprogram.com) "
+                            "and PLFS unit-level data from the Ministry of Statistics and Programme Implementation (https://microdata.gov.in); "
+                            "neither may be redistributed.")
+
 json.dump(N, open(O / "numbers.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(f"{len(N)} numbers written"); [print(f"  {k}: {v}") for k, v in N.items()]

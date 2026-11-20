@@ -1,0 +1,172 @@
+{
+ "tiers": {
+  "unfit": {
+   "n": 6,
+   "pop_share": 0.21687648527319953,
+   "states": [
+    "ASSAM",
+    "JAMMU & KASHMIR (incl. LADAKH)",
+    "MANIPUR",
+    "NAGALAND",
+    "UTTAR PRADESH",
+    "UTTARAKHAND"
+   ]
+  },
+  "correct before use": {
+   "n": 16,
+   "pop_share": 0.43519632960724,
+   "states": [
+    "A & N ISLANDS",
+    "ANDHRA PRADESH",
+    "ARUNACHAL PRADESH",
+    "BIHAR",
+    "DNH & DD",
+    "GUJARAT",
+    "HIMACHAL PRADESH",
+    "JHARKHAND",
+    "MEGHALAYA",
+    "MIZORAM",
+    "ODISHA",
+    "PUNJAB",
+    "TAMIL NADU",
+    "TELANGANA",
+    "TRIPURA",
+    "WEST BENGAL"
+   ]
+  },
+  "adequate": {
+   "n": 7,
+   "pop_share": 0.22849924441098596,
+   "states": [
+    "GOA",
+    "KARNATAKA",
+    "KERALA",
+    "MAHARASHTRA",
+    "PUDUCHERRY",
+    "RAJASTHAN",
+    "SIKKIM"
+   ]
+  },
+  "over-recording": {
+   "n": 4,
+   "pop_share": 0.1194279407085746,
+   "states": [
+    "CHHATTISGARH",
+    "DELHI (UT)",
+    "HARYANA",
+    "MADHYA PRADESH"
+   ]
+  }
+ },
+ "n_units": 33,
+ "n_trend_unstable": 11,
+ "pop_share_not_usable": 0.6520728148804393,
+ "dissimilarity": [
+  0.18750098755616096,
+  0.16335056347684446,
+  0.2205892331170802
+ ],
+ "dissimilarity_roster_exact": 0.21527574711187172,
+ "dissimilarity_srs_complete": 0.18234440349093936,
+ "dissimilarity_migration": 0.1878910515351483,
+ "n_under_allocated_090": 9,
+ "under_allocated_states": [
+  [
+   "JAMMU & KASHMIR (incl. LADAKH)",
+   0.37682414441462697
+  ],
+  [
+   "NAGALAND",
+   0.41163734807924324
+  ],
+  [
+   "MANIPUR",
+   0.47115660291226913
+  ],
+  [
+   "ASSAM",
+   0.49587353283031316
+  ],
+  [
+   "UTTAR PRADESH",
+   0.5443922578641178
+  ],
+  [
+   "UTTARAKHAND",
+   0.5542009763251727
+  ],
+  [
+   "BIHAR",
+   0.6103357129867211
+  ],
+  [
+   "ARUNACHAL PRADESH",
+   0.6269327733759161
+  ],
+  [
+   "TELANGANA",
+   0.6455344529236815
+  ]
+ ],
+ "pop_share_under_allocated": 0.33551354085096924,
+ "share_ratio_up": 0.5443922578641178,
+ "n_states_target": 33,
+ "n_police_met": 8,
+ "n_true_met": [
+  20.0,
+  15.0,
+  24.0
+ ],
+ "n_misjudged": [
+  19.0,
+  15.0,
+  24.0
+ ],
+ "n_missed_achievement": [
+  15.0,
+  12.0,
+  20.0
+ ],
+ "n_false_achievement": [
+  4.0,
+  2.0,
+  6.0
+ ],
+ "n_misjudged_p090": 10,
+ "misjudged_p090_states": [
+  "ASSAM",
+  "BIHAR",
+  "HARYANA",
+  "JHARKHAND",
+  "KERALA",
+  "MADHYA PRADESH",
+  "MANIPUR",
+  "RAJASTHAN",
+  "TELANGANA",
+  "WEST BENGAL"
+ ],
+ "n_missed_p090": 8,
+ "n_false_p090": 2,
+ "missed_p090_states": [
+  "BIHAR",
+  "HARYANA",
+  "JHARKHAND",
+  "KERALA",
+  "MADHYA PRADESH",
+  "MANIPUR",
+  "RAJASTHAN",
+  "WEST BENGAL"
+ ],
+ "false_p090_states": [
+  "ASSAM",
+  "TELANGANA"
+ ],
+ "national_police_ratio": 0.9599066111540517,
+ "national_P_true_met": 0.966125,
+ "n_cc_gt_10pct": 26,
+ "n_cc_gt_10pct_P090": 11,
+ "cc_iqr_states": [
+  1.016211986541748,
+  1.3659937381744385
+ ]
+}

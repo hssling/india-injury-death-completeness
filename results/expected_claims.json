@@ -21,7 +21,7 @@
  "has:survey injury rate among women also fell": true,
  "has:left the injury rate unchanged": true,
  "clean": true,
- "abstract_words": 249,
+ "abstract_words": 247,
  "in:203,000 (55,000–382,000)": true,
  "in:526,000": true,
  "in:15% (10–20%)": true,
@@ -31,5 +31,11 @@
  "has:Bihar police counts rose while true injury mortality fell": true,
  "has:agreed more closely with GBD estimates than police rates did": true,
  "has:inside our range": true,
- "has:a state effect and a state-by-round deviation": true
+ "has:a state effect and a state-by-round deviation": true,
+ "has:adequate as recorded in 7 of 33": true,
+ "has:only about a quarter of India's population": true,
+ "in:19% (16–22%)": true,
+ "has:about one rupee in five": true,
+ "has:India did not achieve a 10% reduction": true,
+ "has:Completeness changed by more than 10% in 26": true
 }
